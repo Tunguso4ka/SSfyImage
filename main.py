@@ -19,7 +19,12 @@ def make_bool(text):
 # activates with app start
 def on_app_activate(app):
     # define elements
+
+    # Main Window
+    global main_window
     main_window = Gtk.ApplicationWindow(application=app)
+
+    # Main box
     main_box = Gtk.Box(orientation=1, spacing=10)
     main_box.props.margin_top = main_box.props.margin_bottom = main_box.props.margin_start = main_box.props.margin_end = 10
     button_box = Gtk.Box(orientation=0, spacing=10)
@@ -86,7 +91,7 @@ def on_file_button_click(button):
     file_dialog.set_default_filter(file_filter)
 
     # open
-    file_dialog.open(None, None, file_dialog_open_callback)
+    file_dialog.open(main_window, None, file_dialog_open_callback)
 
 # activates on selecting or exiting file chooser
 def file_dialog_open_callback(dialog, result):
@@ -96,7 +101,7 @@ def file_dialog_open_callback(dialog, result):
         if file is not None:
             image_path = file.get_path()
             translate_image()
-    except: print(f"Error while opening file.")
+    except Exception as e: print(f"Error while opening file: {e}")
 
 # activates on limit checkbutton toggle
 def on_limit_checkbutton_toggle(button):
@@ -135,34 +140,32 @@ def translate_image():
 
     # translates picture into ss14 rich text
     h = 0
-    symb = 0
     last_color = ''
     text = ''
+    a = 255
     while h < max_h:
         w = 0
         line = ''
         while w < max_w:
-            try:
-                r, g, b, a = pixels[w, h]
-            except:
-                r, g, b = pixels[w, h]
-                a = 255
+            try: r, g, b, a = pixels[w, h]
+            except: r, g, b = pixels[w, h]
             color = rgba2hex(r, g, b, a)
             if last_color != color:
                 line += f'[color={color}]'
                 last_color = color
             line += '██'
             w += 1
-        symb += len(line)
-        if symb <= symbol_limit or not use_limit: text += line + '\n'
-        else: break
+        
+        if len(text + line) > symbol_limit and use_limit: break
+
+        text += line + '\n'
         h += 1
 
     if force_cli:
         print(text)
     else:
         buffer.set_text(text)
-        info_label.set_label(f'Size: {max_w}x{max_h} Symbols: {symb}/{symbol_limit}')
+        info_label.set_label(f'Size: {max_w}x{max_h} Symbols: {len(text)}/{symbol_limit}')
 
 # CODE
 # variables
