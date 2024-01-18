@@ -1,16 +1,22 @@
 # SSfy Image
 
-Simple CLI tool that turns any photo into the SS14 rich text image (text that looks like an image).
+Simple GTK GUI tool that turns any photo into the SS14 rich text image (text that looks like an image).
 
-! Windows is not officialy supported !
+! Might not work on windows !
 
 ### How to use?
 
-1. Save photo.png to the script directory. (Make sure its 21 on 26 px, or use ignore\_size=1 argument)
+1. Make screenshot, edit and zoom it to be smaller or equal to the 21x26 pixels.
 2. Run script.
+
+### Dependencies
+- Electricity
+- Python3
+- GTK4
 
 ### Arguments
 
-- force — forces script to print full image even if its over the ss14 paper symbol limit
-- rgba - use RGBA instead of RGB.
-- ignore\_size - ignores size of inputed image (wont trim it to the standard 21x26)
+- limit — limits maximum rich text image to the ss14 paper limit.
+- force\_rgba - forces RGBA.
+- image\_path - this image will be opened on the app start.
+- force\_cli - forces CLI mode.
