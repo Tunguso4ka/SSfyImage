@@ -23,22 +23,32 @@ def on_app_activate(app):
     main_box = Gtk.Box(orientation=1, spacing=10)
     main_box.props.margin_top = main_box.props.margin_bottom = main_box.props.margin_start = main_box.props.margin_end = 10
     button_box = Gtk.Box(orientation=0, spacing=10)
+
+    # Text view
     global text_view
     text_view = Gtk.TextView()
     text_view.set_vexpand(True)
+
+    # Size and Symbol count label
     global info_label
     info_label = Gtk.Label().new('Size: 0x0 Symbols: 0')
 
+    # Use limit button
     limit_checkbutton = Gtk.CheckButton(label='Use limit')
-    limit_checkbutton.set_active(limit)
+    limit_checkbutton.set_active(use_limit)
     limit_checkbutton.connect('toggled', on_limit_checkbutton_toggle)
+
+    # Force RGBA button
     rgba_checkbutton = Gtk.CheckButton(label='Force RGBA')
     rgba_checkbutton.set_active(force_rgba)
     rgba_checkbutton.connect('toggled', on_rgba_checkbutton_toggle)
+
+    # Ignore size button
     ignoresize_checkbutton = Gtk.CheckButton(label='Ignore size')
     ignoresize_checkbutton.set_active(ignore_size)
     ignoresize_checkbutton.connect('toggled', on_ignoresize_checkbutton_toggle)
 
+    # Choose image button
     file_button = Gtk.Button(label='Choose image')
     file_button.set_hexpand(True)
     file_button.connect('clicked', on_file_button_click)
@@ -46,7 +56,7 @@ def on_app_activate(app):
     # set childs
     button_box.append(limit_checkbutton)
     button_box.append(rgba_checkbutton)
-    #button_box.append(ignoresize_checkbutton)
+    button_box.append(ignoresize_checkbutton)
     button_box.append(file_button)
 
     main_box.append(button_box)
@@ -90,8 +100,8 @@ def file_dialog_open_callback(dialog, result):
 
 # activates on limit checkbutton toggle
 def on_limit_checkbutton_toggle(button):
-    global limit
-    limit = button.get_active()
+    global use_limit
+    use_limit = button.get_active()
     translate_image()
 
 # activates on force rgba checkbutton toggle
@@ -120,8 +130,8 @@ def translate_image():
     image_w, image_h = image.size
 
     # "trims" image if its too big. ignore_size disables this
-    if max_h > image_h and not ignore_size: max_h = image_h
-    if max_w > image_w and not ignore_size: max_w = image_w
+    if max_h > image_h or ignore_size: max_h = image_h
+    if max_w > image_w or ignore_size: max_w = image_w
 
     # translates picture into ss14 rich text
     h = 0
@@ -144,7 +154,7 @@ def translate_image():
             line += '██'
             w += 1
         symb += len(line)
-        if symb <= 6000 or not limit: text += line + '\n'
+        if symb <= symbol_limit or not use_limit: text += line + '\n'
         else: break
         h += 1
 
@@ -152,22 +162,27 @@ def translate_image():
         print(text)
     else:
         buffer.set_text(text)
-        info_label.set_label(f'Size: {max_w}x{max_h} Symbols: {symb}/6000')
+        info_label.set_label(f'Size: {max_w}x{max_h} Symbols: {symb}/{symbol_limit}')
 
 # CODE
 # variables
-limit = True
+use_limit = True
 force_rgba = False
 ignore_size = False
 force_cli = False
 
 image_path = ''
+symbol_limit = 6000
 
 # checks and sets arguments
 for i in argv[1:]:
     arg = i.split('=', 1)
-    if arg[0] == 'image_path': image_path = arg[1]
-    elif arg[0] in globals(): globals()[arg[0]] = make_bool(arg[1])
+    if arg[0] not in globals(): continue
+
+    arg_type = type(globals()[arg[0]])
+    if arg_type == int: globals()[arg[0]] = int(arg[1])
+    elif arg_type == str: globals()[arg[0]] = arg[1]
+    elif arg_type == bool: globals()[arg[0]] = make_bool(arg[1])
 
 if force_cli:
     if image_path == '': image_path = input('Input image path: ')

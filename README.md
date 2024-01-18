@@ -16,7 +16,8 @@ Simple GTK GUI tool that turns any photo into the SS14 rich text image (text tha
 
 ### Arguments
 
-- limit — limits maximum rich text image to the ss14 paper limit.
-- force\_rgba - forces RGBA.
-- image\_path - this image will be opened on the app start.
-- force\_cli - forces CLI mode.
+- use\_limit    — bool,   limits maximum rich text image to the ss14 paper limit.
+- force\_rgba   - bool,   forces RGBA.
+- force\_cli    - bool,   forces CLI mode.
+- image\_path   - string, this image will be opened on the app start.
+- symbol\_limit - int,    sets symbol limit.
