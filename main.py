@@ -4,9 +4,6 @@
 from PIL import Image
 from sys import argv
 from os.path import exists
-import gi
-gi.require_version("Gtk", "4.0")
-from gi.repository import Gtk, Gio
 
 # DEFS
 # translates rgba to hex code. Stolen from stackoverflow. Edited slighly by me.
@@ -135,7 +132,11 @@ def translate_image():
         w = 0
         line = ''
         while w < max_w:
-            r, g, b, a = pixels[w, h]
+            try:
+                r, g, b, a = pixels[w, h]
+            except:
+                r, g, b = pixels[w, h]
+                a = 255
             color = rgba2hex(r, g, b, a)
             if last_color != color:
                 line += f'[color={color}]'
@@ -171,8 +172,11 @@ for i in argv[1:]:
 if force_cli:
     if image_path == '': image_path = input('Input image path: ')
     translate_image()
-    exit()
+else:
+    import gi
+    gi.require_version("Gtk", "4.0")
+    from gi.repository import Gtk, Gio
 
-app = Gtk.Application(application_id='ssfy.image')
-app.connect('activate', on_app_activate)
-app.run(None)
+    app = Gtk.Application(application_id='ssfy.image')
+    app.connect('activate', on_app_activate)
+    app.run(None)
