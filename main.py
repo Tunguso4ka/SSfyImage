@@ -29,6 +29,9 @@ def on_app_activate(app):
     main_box.props.margin_top = main_box.props.margin_bottom = main_box.props.margin_start = main_box.props.margin_end = 10
     button_box = Gtk.Box(orientation=0, spacing=10)
 
+    # Scroll view
+    scrolled_window = Gtk.ScrolledWindow()
+
     # Text view
     global text_view
     text_view = Gtk.TextView()
@@ -64,8 +67,10 @@ def on_app_activate(app):
     button_box.append(ignoresize_checkbutton)
     button_box.append(file_button)
 
+    scrolled_window.set_child(text_view)
+
     main_box.append(button_box)
-    main_box.append(text_view)
+    main_box.append(scrolled_window)
     main_box.append(info_label)
 
     main_window.set_child(main_box)
