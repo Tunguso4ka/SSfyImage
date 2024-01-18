@@ -36,7 +36,7 @@ def on_app_activate(app):
 
     # Size and Symbol count label
     global info_label
-    info_label = Gtk.Label().new('Size: 0x0 Symbols: 0')
+    info_label = Gtk.Label().new(f'Size: 0x0 Symbols: 0/{symbol_limit}')
 
     # Use limit button
     limit_checkbutton = Gtk.CheckButton(label='Use limit')
