@@ -1,7 +1,34 @@
 #include <gtk/gtk.h>
 
+bool use_limit = true;
+bool force_rgba = false;
+bool ignore_size = false;
+//bool force_cli = false;
+
+char image_path;
+int symbol_limit = 6000;
+
+
 // Activates on select image button click
 static void on_image_button_click (GtkWidget *button, gpointer user_data) 
+{
+
+}
+
+// Activates on limit checbutton toggle
+static void limit_checkbutton_toggle (GtkWidget *button, gpointer user_data) 
+{
+
+}
+
+// Activates on rgba checbutton toggle
+static void rgba_checkbutton_toggle (GtkWidget *button, gpointer user_data) 
+{
+
+}
+
+// Activates on ignoresize checbutton toggle
+static void ignoresize_checkbutton_toggle (GtkWidget *button, gpointer user_data) 
 {
 
 }
