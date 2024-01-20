@@ -50,7 +50,10 @@ void translate_image ()
     max_h = image_h;
 
   int w = 0, h = 0;
-  unsigned char r, g, b, a;
+  char r[3] = "00";
+  char g[3] = "00";
+  char b[3] = "00";
+  char a[3] = "00";
 
   char color[10] = "";
   char last_color[10] = "" ;
@@ -64,15 +67,27 @@ void translate_image ()
     for (w = 0; w < max_w; w++)
     {
       const stbi_uc *p = image + (4 * (h * image_w + w));
-      r = p[0];
-      g = p[1];
-      b = p[2];
-      a = p[3];
+      // R
+      sprintf(r, "%x", p[0]);
+      if (strlen(r) == 1)
+        sprintf(r, "0%x", p[0]);
+      // G
+      sprintf(g, "%x", p[1]);
+      if (strlen(g) == 1)
+        sprintf(g, "0%x", p[1]);
+      // B
+      sprintf(b, "%x", p[2]);
+      if (strlen(b) == 1)
+        sprintf(b, "0%x", p[2]);
+      // A
+      sprintf(a, "%x", p[3]);
+      if (strlen(a) == 1)
+        sprintf(a, "0%x", p[3]);
 
-      if (a != 255 && use_rgba) 
-        sprintf(color, "%x%x%x%x", r, g, b, a);
+      if (strcmp (a, "ff") != 0 && use_rgba) 
+        sprintf(color, "%s%s%s%s", r, g, b, a);
       else
-        sprintf(color, "%x%x%x", r, g, b);
+        sprintf(color, "%s%s%s", r, g, b);
 
       if (strcmp (last_color, color) != 0)
       {
