@@ -1,14 +1,13 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
-#include <stdlib.h>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image/stb_image.h"
 
 bool use_limit = true;
-bool force_rgba = false;
+bool use_rgba = true;
 bool ignore_size = false;
-bool force_cli = false;
+bool force_cli = false; // TODO make it work
 
 char image_path[50] = "";
 int symbol_limit = 6000;
@@ -29,18 +28,29 @@ GtkTextBuffer *text_buffer;
 GtkFileDialog *file_dialog;
 GtkFileFilter *file_filter;
 
+// translates image into rich text
 void translate_image () 
 {
+  // ends function if image path blank
   if (strlen(image_path) == 0)
     return;
 
-  FILE *image = fopen(image_path, "rb");
+  // import image, end if its null
+  int image_w, image_h, channels;
+  unsigned char *image = stbi_load(image_path, &image_w, &image_h, &channels, 4);
+  if (image == NULL)
+    return;
 
-
+  // 
   int max_w = 21, max_h = 26;
 
+  if ((max_w > image_w) || ignore_size)
+    max_w = image_w;
+  if ((max_h > image_h) || ignore_size)
+    max_h = image_h;
+
   int w = 0, h = 0;
-  int r = 255, g = 255, b = 255, a = 255;
+  unsigned char r, g, b, a;
 
   char color[10] = "";
   char last_color[10] = "" ;
@@ -53,9 +63,13 @@ void translate_image ()
     strcpy (line, "");
     for (w = 0; w < max_w; w++)
     {
-      // Get point
+      const stbi_uc *p = image + (4 * (h * image_w + w));
+      r = p[0];
+      g = p[1];
+      b = p[2];
+      a = p[3];
 
-      if (a != 255 || force_rgba) 
+      if (a != 255 && use_rgba) 
         sprintf(color, "%x%x%x%x", r, g, b, a);
       else
         sprintf(color, "%x%x%x", r, g, b);
@@ -69,8 +83,6 @@ void translate_image ()
       }
 
       strcat (line, "██");
-
-      // g_print("%ux%u\n%s\n%s %s\n", w, h, line, last_color, color);
     }
 
     if ((strlen(text) + strlen(line)) > symbol_limit && use_limit)
@@ -99,7 +111,7 @@ void file_dialog_open_callback (GtkFileDialog *dialog, GAsyncResult *result, gpo
   GFile *file = gtk_file_dialog_open_finish( dialog, result, NULL );
   if (file == NULL) 
     return;
-  strcpy (image_path, g_file_get_path(file)); // i fucking hate C
+  strcpy (image_path, g_file_get_path(file));
   translate_image();
 }
 
@@ -112,7 +124,7 @@ static void on_file_button_click (GtkWidget *button, gpointer user_data)
 
   gtk_file_filter_set_name(file_filter, "Image files");
   gtk_file_filter_add_mime_type(file_filter, "image/png");
-  // TODO jpeg support
+  gtk_file_filter_add_mime_type(file_filter, "image/jpeg");
   
   gtk_file_dialog_set_default_filter(GTK_FILE_DIALOG (file_dialog), file_filter);
 
@@ -129,7 +141,7 @@ static void limit_checkbutton_toggle (GtkWidget *button, gpointer user_data)
 // Activates on rgba checkbutton toggle
 static void rgba_checkbutton_toggle (GtkWidget *button, gpointer user_data) 
 {
-  force_rgba = gtk_check_button_get_active( GTK_CHECK_BUTTON (button) );
+  use_rgba = gtk_check_button_get_active( GTK_CHECK_BUTTON (button) );
   translate_image();
 }
 
@@ -164,8 +176,8 @@ static void on_app_activate (GtkApplication *app, gpointer user_data)
   g_signal_connect (limit_checkbutton, "toggled", G_CALLBACK (limit_checkbutton_toggle), NULL);
 
   // RGBA CheckButton
-  rgba_checkbutton = gtk_check_button_new_with_label("Force RGBA");
-  gtk_check_button_set_active( GTK_CHECK_BUTTON (rgba_checkbutton), force_rgba);
+  rgba_checkbutton = gtk_check_button_new_with_label("Use RGBA");
+  gtk_check_button_set_active( GTK_CHECK_BUTTON (rgba_checkbutton), use_rgba);
   g_signal_connect (rgba_checkbutton, "toggled", G_CALLBACK (rgba_checkbutton_toggle), NULL);
 
   // IgnoreSize CheckButton
@@ -206,6 +218,8 @@ static void on_app_activate (GtkApplication *app, gpointer user_data)
 // Main
 int main (int argc, char **argv)
 {
+  // TODO make arguments work
+  
   GtkApplication *app;
   int status;
 
@@ -216,25 +230,3 @@ int main (int argc, char **argv)
 
   return status;
 }
-
-/*
- * TODO
- *
- * RGBA to HEX translator
- *
- * App
- *
- * Main Window
- *  Main Box
- *    Button box
- *      use limit checkbutton
- *      force RGBA checkbutton
- *      ignore size checkbutton
- *      choose image button
- *    Text View
- *    Info Label
- *
- * Arguments
- *
- * Image translator
- */
