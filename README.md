@@ -11,8 +11,8 @@ Simple GTK GUI tool that turns any photo into the SS14 rich text image (text tha
 
 ## Dependencies
 - Electricity
-- Python3
-- GTK4
+- gtk4
+- stb\_image
 
 ## Arguments
 
@@ -21,3 +21,6 @@ Simple GTK GUI tool that turns any photo into the SS14 rich text image (text tha
 - force\_cli    - bool,   forces CLI mode.
 - image\_path   - string, this image will be opened on the app start.
 - symbol\_limit - int,    sets symbol limit.
+
+### How to compile?
+`gcc $(pkg-config --cflags gtk4) -o main main.c $(pkg-config --libs gtk4) -lm`

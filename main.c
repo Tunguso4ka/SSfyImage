@@ -1,11 +1,16 @@
 #include <gtk/gtk.h>
+#include <stdio.h>
+#include <stdlib.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image/stb_image.h"
 
 bool use_limit = true;
 bool force_rgba = false;
 bool ignore_size = false;
-//bool force_cli = false;
+bool force_cli = false;
 
-char image_path[100] = "";
+char image_path[50] = "";
 int symbol_limit = 6000;
 
 GtkWidget *main_window;
@@ -19,21 +24,74 @@ GtkWidget *scrolled_window;
 GtkWidget *text_view;
 GtkWidget *info_label;
 
-GtkFileDialog *file_dialog;
+GtkTextBuffer *text_buffer;
 
-char* rgba_to_hex (int *r, int *g, int *b, int *a) 
-{
-  if (*a != 255 || force_rgba) 
-    return "a";
-  else
-    return "a"; // TODO
-}
+GtkFileDialog *file_dialog;
+GtkFileFilter *file_filter;
 
 void translate_image () 
 {
-  if (image_path == "")
+  if (strlen(image_path) == 0)
     return;
-  // TODO;
+
+  FILE *image = fopen(image_path, "rb");
+
+
+  int max_w = 21, max_h = 26;
+
+  int w = 0, h = 0;
+  int r = 255, g = 255, b = 255, a = 255;
+
+  char color[10] = "";
+  char last_color[10] = "" ;
+  char line[1000] = "";
+  char info[50] = "";
+  char text[10000] = "";
+
+  for (h = 0; h < max_h; h++)
+  {
+    strcpy (line, "");
+    for (w = 0; w < max_w; w++)
+    {
+      // Get point
+
+      if (a != 255 || force_rgba) 
+        sprintf(color, "%x%x%x%x", r, g, b, a);
+      else
+        sprintf(color, "%x%x%x", r, g, b);
+
+      if (strcmp (last_color, color) != 0)
+      {
+        strcpy (last_color, color);
+        strcat (line, "[color=#");
+        strcat (line, color);
+        strcat (line, "]");
+      }
+
+      strcat (line, "██");
+
+      // g_print("%ux%u\n%s\n%s %s\n", w, h, line, last_color, color);
+    }
+
+    if ((strlen(text) + strlen(line)) > symbol_limit && use_limit)
+      break;
+
+    strcat (text, line);
+    strcat (text, "\n");
+  }
+
+  if (force_cli)
+  {
+    g_print(text);
+  }
+  else
+  {
+    text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW (text_view));
+    gtk_text_buffer_set_text(GTK_TEXT_BUFFER (text_buffer), text, strlen(text));
+
+    sprintf(info, "Size: %ix%i Symbols: %i/%i", max_w, max_h, strlen(text), symbol_limit);
+    gtk_label_set_label(GTK_LABEL (info_label), info);
+  }
 }
 
 void file_dialog_open_callback (GtkFileDialog *dialog, GAsyncResult *result, gpointer user_data) 
@@ -41,7 +99,7 @@ void file_dialog_open_callback (GtkFileDialog *dialog, GAsyncResult *result, gpo
   GFile *file = gtk_file_dialog_open_finish( dialog, result, NULL );
   if (file == NULL) 
     return;
-  image_path[100] = g_file_get_path(file);
+  strcpy (image_path, g_file_get_path(file)); // i fucking hate C
   translate_image();
 }
 
@@ -49,7 +107,15 @@ void file_dialog_open_callback (GtkFileDialog *dialog, GAsyncResult *result, gpo
 static void on_file_button_click (GtkWidget *button, gpointer user_data) 
 {
   file_dialog = gtk_file_dialog_new();
-  // TODO add filters
+
+  file_filter = gtk_file_filter_new();
+
+  gtk_file_filter_set_name(file_filter, "Image files");
+  gtk_file_filter_add_mime_type(file_filter, "image/png");
+  // TODO jpeg support
+  
+  gtk_file_dialog_set_default_filter(GTK_FILE_DIALOG (file_dialog), file_filter);
+
   gtk_file_dialog_open(GTK_FILE_DIALOG (file_dialog), GTK_WINDOW (main_window), NULL, G_CALLBACK (file_dialog_open_callback), NULL);
 }
 
@@ -120,7 +186,7 @@ static void on_app_activate (GtkApplication *app, gpointer user_data)
   gtk_widget_set_vexpand( GTK_WIDGET (text_view), true);
 
   // Info Label
-  info_label = gtk_label_new("Size: 0x0 Symbols: 0/6000");
+  info_label = gtk_label_new("Image is not loaded, yet.");
 
   // Set/Append childs
   gtk_box_append( GTK_BOX (button_box), limit_checkbutton);
