@@ -14,13 +14,13 @@ Simple GTK GUI tool that turns any photo into the SS14 rich text image (text tha
 - gtk4
 - stb\_image
 
-## Arguments
-
-- use\_limit    — bool,   limits maximum rich text image to the ss14 paper limit.
-- force\_rgba   - bool,   forces RGBA.
-- force\_cli    - bool,   forces CLI mode.
-- image\_path   - string, this image will be opened on the app start.
-- symbol\_limit - int,    sets symbol limit.
-
 ### How to compile?
+
+- Install GTK4
+- Copy https://github.com/nothings/stb/blob/master/stb\_image.h to the stb\_image folder.
+
+
+#### GCC
 `gcc $(pkg-config --cflags gtk4) -o main main.c $(pkg-config --libs gtk4) -lm`
+#### Other
+Sadly, dont know :(

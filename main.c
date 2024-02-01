@@ -42,7 +42,7 @@ void translate_image ()
     return;
 
   // 
-  int max_w = 21, max_h = 26;
+  int max_w = 21, max_h = 27;
 
   if ((max_w > image_w) || ignore_size)
     max_w = image_w;
@@ -140,6 +140,7 @@ static void on_file_button_click (GtkWidget *button, gpointer user_data)
   gtk_file_filter_set_name(file_filter, "Image files");
   gtk_file_filter_add_mime_type(file_filter, "image/png");
   gtk_file_filter_add_mime_type(file_filter, "image/jpeg");
+  gtk_file_filter_add_mime_type(file_filter, "image/jpg");
   
   gtk_file_dialog_set_default_filter(GTK_FILE_DIALOG (file_dialog), file_filter);
 
@@ -233,8 +234,6 @@ static void on_app_activate (GtkApplication *app, gpointer user_data)
 // Main
 int main (int argc, char **argv)
 {
-  // TODO make arguments work
-  
   GtkApplication *app;
   int status;
 

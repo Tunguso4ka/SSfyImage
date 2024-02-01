@@ -1,5 +1,5 @@
 main
 ssfyimage-linux
 ssfyimage.exe
-stb_image
+stb_image/*
 *.png
