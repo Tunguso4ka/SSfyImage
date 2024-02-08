@@ -50,6 +50,9 @@ void translate_image ()
     max_h = image_h;
 
   int w = 0, h = 0;
+
+  int text_len = 0, line_len = 0;
+
   char r[3] = "00";
   char g[3] = "00";
   char b[3] = "00";
@@ -57,13 +60,14 @@ void translate_image ()
 
   char color[10] = "";
   char last_color[10] = "" ;
-  char line[1000] = "";
+  char line[5000] = "";
   char info[50] = "";
-  char text[10000] = "";
+  char text[50000] = "";
 
   for (h = 0; h < max_h; h++)
   {
     strcpy (line, "");
+    line_len = 0;
     for (w = 0; w < max_w; w++)
     {
       const stbi_uc *p = image + (4 * (h * image_w + w));
@@ -95,16 +99,20 @@ void translate_image ()
         strcat (line, "[color=#");
         strcat (line, color);
         strcat (line, "]");
+        line_len += 15;
       }
 
       strcat (line, "██");
+      line_len += 2;
     }
 
-    if ((strlen(text) + strlen(line)) > symbol_limit && use_limit)
+    strcat (line, "\n");
+    line_len += 1;
+    if (((text_len + line_len) > symbol_limit) && use_limit)
       break;
 
     strcat (text, line);
-    strcat (text, "\n");
+    text_len += line_len;
   }
 
   if (force_cli)
@@ -116,7 +124,7 @@ void translate_image ()
     text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW (text_view));
     gtk_text_buffer_set_text(GTK_TEXT_BUFFER (text_buffer), text, strlen(text));
 
-    sprintf(info, "Size: %ix%i Symbols: %i/%i", max_w, max_h, strlen(text), symbol_limit);
+    sprintf(info, "Size: %ix%i Symbols: %i/%i", max_w, max_h, text_len, symbol_limit);
     gtk_label_set_label(GTK_LABEL (info_label), info);
   }
 }
