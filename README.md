@@ -14,7 +14,7 @@ Simple GTK GUI tool that turns any photo into the SS14 rich text image (text tha
 - gtk4
 - stb\_image
 
-### How to compile?
+## How to compile?
 
 - Install GTK4
 - Copy https://github.com/nothings/stb/blob/master/stb\_image.h to the stb\_image folder.
