@@ -6,10 +6,8 @@
 
 bool use_limit = true;
 bool use_rgba = true;
-bool ignore_size = false;
-bool force_cli = false; // TODO make it work
 
-char image_path[50] = "";
+char image_path[100] = "";
 int symbol_limit = 6000;
 
 GtkWidget *main_window;
@@ -17,7 +15,7 @@ GtkWidget *main_box;
 GtkWidget *button_box;
 GtkWidget *limit_checkbutton;
 GtkWidget *rgba_checkbutton;
-GtkWidget *ignoresize_checkbutton;
+GtkWidget *reload_button;
 GtkWidget *file_button;
 GtkWidget *scrolled_window;
 GtkWidget *text_view;
@@ -42,13 +40,6 @@ void translate_image ()
     return;
 
   // 
-  int max_w = 21, max_h = 27;
-
-  if ((max_w > image_w) || ignore_size)
-    max_w = image_w;
-  if ((max_h > image_h) || ignore_size)
-    max_h = image_h;
-
   int w = 0, h = 0;
 
   int text_len = 0, line_len = 0;
@@ -64,11 +55,11 @@ void translate_image ()
   char info[50] = "";
   char text[50000] = "";
 
-  for (h = 0; h < max_h; h++)
+  for (h = 0; h < image_h; h++)
   {
     strcpy (line, "");
     line_len = 0;
-    for (w = 0; w < max_w; w++)
+    for (w = 0; w < image_w; w++)
     {
       const stbi_uc *p = image + (4 * (h * image_w + w));
       // R
@@ -115,18 +106,11 @@ void translate_image ()
     text_len += line_len;
   }
 
-  if (force_cli)
-  {
-    g_print(text);
-  }
-  else
-  {
-    text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW (text_view));
-    gtk_text_buffer_set_text(GTK_TEXT_BUFFER (text_buffer), text, strlen(text));
+  text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW (text_view));
+  gtk_text_buffer_set_text(GTK_TEXT_BUFFER (text_buffer), text, strlen(text));
 
-    sprintf(info, "Size: %ix%i Symbols: %i/%i", max_w, max_h, text_len, symbol_limit);
-    gtk_label_set_label(GTK_LABEL (info_label), info);
-  }
+  sprintf(info, "Size: %ix%i Symbols: %i/%i", image_w, image_h, text_len, symbol_limit);
+  gtk_label_set_label(GTK_LABEL (info_label), info);
 }
 
 void file_dialog_open_callback (GtkFileDialog *dialog, GAsyncResult *result, gpointer user_data) 
@@ -141,17 +125,6 @@ void file_dialog_open_callback (GtkFileDialog *dialog, GAsyncResult *result, gpo
 // Activates on select image button click
 static void on_file_button_click (GtkWidget *button, gpointer user_data) 
 {
-  file_dialog = gtk_file_dialog_new();
-
-  file_filter = gtk_file_filter_new();
-
-  gtk_file_filter_set_name(file_filter, "Image files");
-  gtk_file_filter_add_mime_type(file_filter, "image/png");
-  gtk_file_filter_add_mime_type(file_filter, "image/jpeg");
-  gtk_file_filter_add_mime_type(file_filter, "image/jpg");
-  
-  gtk_file_dialog_set_default_filter(GTK_FILE_DIALOG (file_dialog), file_filter);
-
   gtk_file_dialog_open(GTK_FILE_DIALOG (file_dialog), GTK_WINDOW (main_window), NULL, G_CALLBACK (file_dialog_open_callback), NULL);
 }
 
@@ -169,10 +142,9 @@ static void rgba_checkbutton_toggle (GtkWidget *button, gpointer user_data)
   translate_image();
 }
 
-// Activates on ignoresize checkbutton toggle
-static void ignoresize_checkbutton_toggle (GtkWidget *button, gpointer user_data) 
+// Activates on reload button click
+static void reload_button_click (GtkWidget *button, gpointer user_data) 
 {
-  ignore_size = gtk_check_button_get_active( GTK_CHECK_BUTTON (button) );
   translate_image();
 }
 
@@ -182,7 +154,7 @@ static void on_app_activate (GtkApplication *app, gpointer user_data)
   // Main Window
   main_window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (main_window), "SSfy Image");
-  gtk_window_set_default_size (GTK_WINDOW (main_window), 200, 200);
+  gtk_window_set_default_size (GTK_WINDOW (main_window), 200, 400);
 
   // Main Box
   main_box = gtk_box_new (1, 10);
@@ -204,10 +176,9 @@ static void on_app_activate (GtkApplication *app, gpointer user_data)
   gtk_check_button_set_active( GTK_CHECK_BUTTON (rgba_checkbutton), use_rgba);
   g_signal_connect (rgba_checkbutton, "toggled", G_CALLBACK (rgba_checkbutton_toggle), NULL);
 
-  // IgnoreSize CheckButton
-  ignoresize_checkbutton = gtk_check_button_new_with_label("Ignore size");
-  gtk_check_button_set_active( GTK_CHECK_BUTTON (ignoresize_checkbutton), ignore_size);
-  g_signal_connect (ignoresize_checkbutton, "toggled", G_CALLBACK (ignoresize_checkbutton_toggle), NULL);
+  // Reload CheckButton
+  reload_button = gtk_button_new_with_label("Reload");
+  g_signal_connect (reload_button, "clicked", G_CALLBACK (reload_button_click), NULL);
 
   // FIle Button
   file_button = gtk_button_new_with_label ("Choose image");
@@ -225,15 +196,26 @@ static void on_app_activate (GtkApplication *app, gpointer user_data)
   info_label = gtk_label_new("Image is not loaded, yet.");
 
   // Set/Append childs
+  gtk_box_append( GTK_BOX (button_box), reload_button);
   gtk_box_append( GTK_BOX (button_box), limit_checkbutton);
   gtk_box_append( GTK_BOX (button_box), rgba_checkbutton);
-  gtk_box_append( GTK_BOX (button_box), ignoresize_checkbutton);
   gtk_box_append( GTK_BOX (button_box), file_button);
   gtk_box_append( GTK_BOX (main_box), button_box);
   gtk_scrolled_window_set_child( GTK_SCROLLED_WINDOW (scrolled_window), text_view);
   gtk_box_append( GTK_BOX (main_box), scrolled_window);
   gtk_box_append( GTK_BOX (main_box), info_label);
   gtk_window_set_child (GTK_WINDOW (main_window), main_box);
+
+  // File dialog
+  file_dialog = gtk_file_dialog_new();
+  file_filter = gtk_file_filter_new();
+
+  gtk_file_filter_set_name(file_filter, "Image files");
+  gtk_file_filter_add_mime_type(file_filter, "image/png");
+  gtk_file_filter_add_mime_type(file_filter, "image/jpeg");
+  gtk_file_filter_add_mime_type(file_filter, "image/jpg");
+
+  gtk_file_dialog_set_default_filter(GTK_FILE_DIALOG (file_dialog), file_filter);
 
   // Present
   gtk_window_present (GTK_WINDOW (main_window));
