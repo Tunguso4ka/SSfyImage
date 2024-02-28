@@ -5,7 +5,7 @@
 #include "stb_image/stb_image.h"
 
 bool use_limit = true;
-bool use_rgba = true;
+bool simplify_colors = false;
 
 char image_path[100] = "";
 int symbol_limit = 6000;
@@ -14,7 +14,7 @@ GtkWidget *main_window;
 GtkWidget *main_box;
 GtkWidget *button_box;
 GtkWidget *limit_checkbutton;
-GtkWidget *rgba_checkbutton;
+GtkWidget *simplifycolors_checkbutton;
 GtkWidget *reload_button;
 GtkWidget *file_button;
 GtkWidget *scrolled_window;
@@ -66,20 +66,26 @@ void translate_image ()
       sprintf(r, "%x", p[0]);
       if (strlen(r) == 1)
         sprintf(r, "0%x", p[0]);
+      if (simplify_colors)
+        sprintf(r, "%c", r[0]);
       // G
       sprintf(g, "%x", p[1]);
       if (strlen(g) == 1)
         sprintf(g, "0%x", p[1]);
+      if (simplify_colors)
+        sprintf(g, "%c", g[0]);
       // B
       sprintf(b, "%x", p[2]);
       if (strlen(b) == 1)
         sprintf(b, "0%x", p[2]);
+      if (simplify_colors)
+        sprintf(b, "%c", b[0]);
       // A
       sprintf(a, "%x", p[3]);
       if (strlen(a) == 1)
         sprintf(a, "0%x", p[3]);
 
-      if (strcmp (a, "ff") != 0 && use_rgba) 
+      if (strcmp (a, "ff") != 0 && !simplify_colors) 
         sprintf(color, "%s%s%s%s", r, g, b, a);
       else
         sprintf(color, "%s%s%s", r, g, b);
@@ -90,7 +96,10 @@ void translate_image ()
         strcat (line, "[color=#");
         strcat (line, color);
         strcat (line, "]");
-        line_len += 15;
+        if (simplify_colors)
+          line_len += 12;
+        else
+          line_len += strlen(color) + 9;
       }
 
       strcat (line, "██");
@@ -135,10 +144,10 @@ static void limit_checkbutton_toggle (GtkWidget *button, gpointer user_data)
   translate_image();
 }
 
-// Activates on rgba checkbutton toggle
-static void rgba_checkbutton_toggle (GtkWidget *button, gpointer user_data) 
+// Activates on simplify colors checkbutton toggle
+static void simplifycolors_checkbutton_toggle (GtkWidget *button, gpointer user_data) 
 {
-  use_rgba = gtk_check_button_get_active( GTK_CHECK_BUTTON (button) );
+  simplify_colors = gtk_check_button_get_active( GTK_CHECK_BUTTON (button) );
   translate_image();
 }
 
@@ -171,10 +180,10 @@ static void on_app_activate (GtkApplication *app, gpointer user_data)
   gtk_check_button_set_active( GTK_CHECK_BUTTON (limit_checkbutton), use_limit);
   g_signal_connect (limit_checkbutton, "toggled", G_CALLBACK (limit_checkbutton_toggle), NULL);
 
-  // RGBA CheckButton
-  rgba_checkbutton = gtk_check_button_new_with_label("Use RGBA");
-  gtk_check_button_set_active( GTK_CHECK_BUTTON (rgba_checkbutton), use_rgba);
-  g_signal_connect (rgba_checkbutton, "toggled", G_CALLBACK (rgba_checkbutton_toggle), NULL);
+  // Simplify Colors CheckButton
+  simplifycolors_checkbutton = gtk_check_button_new_with_label("Simplify Colors");
+  gtk_check_button_set_active( GTK_CHECK_BUTTON (simplifycolors_checkbutton), simplify_colors);
+  g_signal_connect (simplifycolors_checkbutton, "toggled", G_CALLBACK (simplifycolors_checkbutton_toggle), NULL);
 
   // Reload CheckButton
   reload_button = gtk_button_new_with_label("Reload");
@@ -198,7 +207,7 @@ static void on_app_activate (GtkApplication *app, gpointer user_data)
   // Set/Append childs
   gtk_box_append( GTK_BOX (button_box), reload_button);
   gtk_box_append( GTK_BOX (button_box), limit_checkbutton);
-  gtk_box_append( GTK_BOX (button_box), rgba_checkbutton);
+  gtk_box_append( GTK_BOX (button_box), simplifycolors_checkbutton);
   gtk_box_append( GTK_BOX (button_box), file_button);
   gtk_box_append( GTK_BOX (main_box), button_box);
   gtk_scrolled_window_set_child( GTK_SCROLLED_WINDOW (scrolled_window), text_view);
