@@ -87,10 +87,10 @@ void translate_image ()
       if (simplify_colors)
         sprintf(a, "%c", a[0]);
 
-      if (strcmp (a, "ff") != 0 || strcmp (a, "f") != 0)
-        sprintf(color, "%s%s%s%s", r, g, b, a);
-      else
+      if (strcmp (a, "ff") == 0 || strcmp (a, "f") == 0)
         sprintf(color, "%s%s%s", r, g, b);
+      else
+        sprintf(color, "%s%s%s%s", r, g, b, a);
 
       if (strcmp (last_color, color) != 0)
       {
