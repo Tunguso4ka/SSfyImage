@@ -84,8 +84,10 @@ void translate_image ()
       sprintf(a, "%x", p[3]);
       if (strlen(a) == 1)
         sprintf(a, "0%x", p[3]);
+      if (simplify_colors)
+        sprintf(a, "%c", a[0]);
 
-      if (strcmp (a, "ff") != 0 && !simplify_colors) 
+      if (strcmp (a, "ff") != 0 || strcmp (a, "f") != 0)
         sprintf(color, "%s%s%s%s", r, g, b, a);
       else
         sprintf(color, "%s%s%s", r, g, b);
@@ -96,10 +98,7 @@ void translate_image ()
         strcat (line, "[color=#");
         strcat (line, color);
         strcat (line, "]");
-        if (simplify_colors)
-          line_len += 12;
-        else
-          line_len += strlen(color) + 9;
+        line_len += strlen(color) + 9;
       }
 
       strcat (line, "██");
@@ -118,7 +117,7 @@ void translate_image ()
   text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW (text_view));
   gtk_text_buffer_set_text(GTK_TEXT_BUFFER (text_buffer), text, strlen(text));
 
-  sprintf(info, "Size: %ix%i Symbols: %i/%i", image_w, image_h, text_len, symbol_limit);
+  sprintf(info, "Size: %ix%i Symbols: %i/%i", w, h, text_len, symbol_limit);
   gtk_label_set_label(GTK_LABEL (info_label), info);
 }
 
