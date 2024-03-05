@@ -7,7 +7,7 @@
 bool use_limit = true;
 bool simplify_colors = false;
 
-char image_path[100] = "";
+char image_path[512] = "";
 int symbol_limit = 6000;
 
 GtkWidget *main_window;
@@ -51,9 +51,9 @@ void translate_image ()
 
   char color[10] = "";
   char last_color[10] = "" ;
-  char line[5000] = "";
+  char line[50000] = "";
   char info[50] = "";
-  char text[50000] = "";
+  char text[500000] = "";
 
   for (h = 0; h < image_h; h++)
   {
@@ -162,7 +162,7 @@ static void on_app_activate (GtkApplication *app, gpointer user_data)
   // Main Window
   main_window = gtk_application_window_new (app);
   gtk_window_set_title (GTK_WINDOW (main_window), "SSfy Image");
-  gtk_window_set_default_size (GTK_WINDOW (main_window), 200, 400);
+  gtk_window_set_default_size (GTK_WINDOW (main_window), 250, 500);
 
   // Main Box
   main_box = gtk_box_new (1, 10);
