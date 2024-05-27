@@ -1,5 +1,7 @@
 # SSfy Image
 
+[CLI Readme](https://github.com/Tunguso4ka/SSfyImage/blob/cli/README.md)
+
 Simple GTK GUI tool that turns any photo into the SS14 rich text image (text that looks like an image).
 
 ### ! Might not work on windows !
