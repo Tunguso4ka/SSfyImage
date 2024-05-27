@@ -1,26 +1,23 @@
 # SSfy Image
 
-Simple GTK GUI tool that turns any photo into the SS14 rich text image (text that looks like an image).
-
-### ! Might not work on windows !
+Stripped CLI version of GTK GUI app that turns any photo into the SS14 rich text image (text that looks like an image).
+Should work on Windows, but i didn`t have it and time to test it, so idk.
 
 ## How to use?
 
 1. Make screenshot, edit and zoom it to be smaller or equal to the 21x26 pixels.
-2. Run script.
+2. Save it.
+3. Run executable through console/terminal with path ( `./ssfyimage-cli-linux ~/Pictures/me.png` )
 
 ## Dependencies
 - Electricity
-- gtk4
 - stb\_image
 
 ## How to compile?
 
-- Install GTK4
 - Copy https://github.com/nothings/stb/blob/master/stb_image.h to the stb\_image folder.
 
-
 #### GCC
-`gcc $(pkg-config --cflags gtk4) -o main main.c $(pkg-config --libs gtk4) -lm`
+`gcc -o main main.c -lm`
 #### Other
 Sadly, dont know :(

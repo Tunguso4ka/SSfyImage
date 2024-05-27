@@ -1,5 +1,5 @@
 main
-ssfyimage-linux
-ssfyimage.exe
+ssfyimage-cli-linux
+ssfyimage-cli.exe
 stb_image/*
 *.png

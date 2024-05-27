@@ -1,33 +1,17 @@
-#include <gtk/gtk.h>
-#include <stdio.h>
+#include <stdio.h> // printf
+#include <stdbool.h> //bool
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image/stb_image.h"
+#include "stb_image/stb_image.h" //image manipulation
 
 bool use_limit = true;
-bool simplify_colors = false;
+bool simplify_colors = true;
 
-char image_path[512] = "";
 int symbol_limit = 6000;
 
-GtkWidget *main_window;
-GtkWidget *main_box;
-GtkWidget *button_box;
-GtkWidget *limit_checkbutton;
-GtkWidget *simplifycolors_checkbutton;
-GtkWidget *reload_button;
-GtkWidget *file_button;
-GtkWidget *scrolled_window;
-GtkWidget *text_view;
-GtkWidget *info_label;
-
-GtkTextBuffer *text_buffer;
-
-GtkFileDialog *file_dialog;
-GtkFileFilter *file_filter;
 
 // translates image into rich text
-void translate_image () 
+void translate_image (char image_path[]) 
 {
   // ends function if image path blank
   if (strlen(image_path) == 0)
@@ -37,7 +21,10 @@ void translate_image ()
   int image_w, image_h, channels;
   unsigned char *image = stbi_load(image_path, &image_w, &image_h, &channels, 4);
   if (image == NULL)
+  {
+    printf("Image wasn`t loaded. Check path or image.\n");
     return;
+  }
 
   // 
   int w = 0, h = 0;
@@ -114,131 +101,20 @@ void translate_image ()
     text_len += line_len;
   }
 
-  text_buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW (text_view));
-  gtk_text_buffer_set_text(GTK_TEXT_BUFFER (text_buffer), text, strlen(text));
-
-  sprintf(info, "Size: %ix%i Symbols: %i/%i", w, h, text_len, symbol_limit);
-  gtk_label_set_label(GTK_LABEL (info_label), info);
+  printf("Size: %ix%i Symbols: %i/%i\n\n", w, h, text_len, symbol_limit);
+  printf("%s\n", text);
 }
 
-void file_dialog_open_callback (GtkFileDialog *dialog, GAsyncResult *result, gpointer user_data) 
-{
-  GFile *file = gtk_file_dialog_open_finish( dialog, result, NULL );
-  if (file == NULL) 
-    return;
-  strcpy (image_path, g_file_get_path(file));
-  translate_image();
-}
-
-// Activates on select image button click
-static void on_file_button_click (GtkWidget *button, gpointer user_data) 
-{
-  gtk_file_dialog_open(GTK_FILE_DIALOG (file_dialog), GTK_WINDOW (main_window), NULL, G_CALLBACK (file_dialog_open_callback), NULL);
-}
-
-// Activates on limit checkbutton toggle
-static void limit_checkbutton_toggle (GtkWidget *button, gpointer user_data) 
-{
-  use_limit = gtk_check_button_get_active( GTK_CHECK_BUTTON (button) );
-  translate_image();
-}
-
-// Activates on simplify colors checkbutton toggle
-static void simplifycolors_checkbutton_toggle (GtkWidget *button, gpointer user_data) 
-{
-  simplify_colors = gtk_check_button_get_active( GTK_CHECK_BUTTON (button) );
-  translate_image();
-}
-
-// Activates on reload button click
-static void reload_button_click (GtkWidget *button, gpointer user_data) 
-{
-  translate_image();
-}
-
-// Activates with app start
-static void on_app_activate (GtkApplication *app, gpointer user_data)
-{
-  // Main Window
-  main_window = gtk_application_window_new (app);
-  gtk_window_set_title (GTK_WINDOW (main_window), "SSfy Image");
-  gtk_window_set_default_size (GTK_WINDOW (main_window), 250, 500);
-
-  // Main Box
-  main_box = gtk_box_new (1, 10);
-  gtk_widget_set_margin_start ( GTK_WIDGET (main_box), 10);
-  gtk_widget_set_margin_end ( GTK_WIDGET (main_box), 10);
-  gtk_widget_set_margin_top ( GTK_WIDGET (main_box), 10);
-  gtk_widget_set_margin_bottom ( GTK_WIDGET (main_box), 10);
-
-  // Button Box
-  button_box = gtk_box_new (0, 10);
-
-  // Limit CheckButton
-  limit_checkbutton = gtk_check_button_new_with_label("Use limit");
-  gtk_check_button_set_active( GTK_CHECK_BUTTON (limit_checkbutton), use_limit);
-  g_signal_connect (limit_checkbutton, "toggled", G_CALLBACK (limit_checkbutton_toggle), NULL);
-
-  // Simplify Colors CheckButton
-  simplifycolors_checkbutton = gtk_check_button_new_with_label("Simplify Colors");
-  gtk_check_button_set_active( GTK_CHECK_BUTTON (simplifycolors_checkbutton), simplify_colors);
-  g_signal_connect (simplifycolors_checkbutton, "toggled", G_CALLBACK (simplifycolors_checkbutton_toggle), NULL);
-
-  // Reload CheckButton
-  reload_button = gtk_button_new_with_label("Reload");
-  g_signal_connect (reload_button, "clicked", G_CALLBACK (reload_button_click), NULL);
-
-  // FIle Button
-  file_button = gtk_button_new_with_label ("Choose image");
-  gtk_widget_set_hexpand( GTK_WIDGET (file_button), true);
-  g_signal_connect (file_button, "clicked", G_CALLBACK (on_file_button_click), NULL);
-
-  // Scrolled Window
-  scrolled_window = gtk_scrolled_window_new();
-
-  // Text View
-  text_view = gtk_text_view_new();
-  gtk_widget_set_vexpand( GTK_WIDGET (text_view), true);
-
-  // Info Label
-  info_label = gtk_label_new("Image is not loaded, yet.");
-
-  // Set/Append childs
-  gtk_box_append( GTK_BOX (button_box), reload_button);
-  gtk_box_append( GTK_BOX (button_box), limit_checkbutton);
-  gtk_box_append( GTK_BOX (button_box), simplifycolors_checkbutton);
-  gtk_box_append( GTK_BOX (button_box), file_button);
-  gtk_box_append( GTK_BOX (main_box), button_box);
-  gtk_scrolled_window_set_child( GTK_SCROLLED_WINDOW (scrolled_window), text_view);
-  gtk_box_append( GTK_BOX (main_box), scrolled_window);
-  gtk_box_append( GTK_BOX (main_box), info_label);
-  gtk_window_set_child (GTK_WINDOW (main_window), main_box);
-
-  // File dialog
-  file_dialog = gtk_file_dialog_new();
-  file_filter = gtk_file_filter_new();
-
-  gtk_file_filter_set_name(file_filter, "Image files");
-  gtk_file_filter_add_mime_type(file_filter, "image/png");
-  gtk_file_filter_add_mime_type(file_filter, "image/jpeg");
-  gtk_file_filter_add_mime_type(file_filter, "image/jpg");
-
-  gtk_file_dialog_set_default_filter(GTK_FILE_DIALOG (file_dialog), file_filter);
-
-  // Present
-  gtk_window_present (GTK_WINDOW (main_window));
-}
 
 // Main
 int main (int argc, char **argv)
 {
-  GtkApplication *app;
-  int status;
+  if (argc < 2)
+  {
+    printf("No path specified. Exiting.\n");
+    return 0;
+  }
 
-  app = gtk_application_new ("ssfy.image", G_APPLICATION_DEFAULT_FLAGS);
-  g_signal_connect (app, "activate", G_CALLBACK (on_app_activate), NULL);
-  status = g_application_run (G_APPLICATION (app), argc, argv);
-  g_object_unref (app);
-
-  return status;
+  translate_image(argv[1]);
+  return 0;
 }
