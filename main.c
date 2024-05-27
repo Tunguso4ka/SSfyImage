@@ -5,7 +5,7 @@
 #include "stb_image/stb_image.h"
 
 bool use_limit = true;
-bool simplify_colors = false;
+bool simplify_colors = true;
 
 char image_path[512] = "";
 int symbol_limit = 6000;
