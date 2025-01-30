@@ -1,28 +1,14 @@
-# SSfy Image
+# SS14fyImage
 
-[CLI Readme](https://github.com/Tunguso4ka/SSfyImage/blob/cli/README.md)
+Simple PyQt6 GUI (and CLI) tool that transforms any photo into SS14 rich text image (text that looks like an image).
 
-Simple GTK GUI tool that turns any photo into the SS14 rich text image (text that looks like an image).
-
-### ! Might not work on windows !
+Should probably work on Windows, but idk. Dont use it. ( try https://distrochooser.de )
 
 ## How to use?
 
-1. Make screenshot, edit and zoom it to be smaller or equal to the 21x26 pixels.
-2. Run script.
+1. Make screenshot, edit and zoom it to be smaller or equal to the 21x26 pixels. (Otherwise it not gonna fit on paper)
+2. Double click on .desktop file or run `python3 main.py`
 
 ## Dependencies
 - Electricity
-- gtk4
-- stb\_image
-
-## How to compile?
-
-- Install GTK4
-- Copy https://github.com/nothings/stb/blob/master/stb_image.h to the stb\_image folder.
-
-
-#### GCC
-`gcc $(pkg-config --cflags gtk4) -o main main.c $(pkg-config --libs gtk4) -lm`
-#### Other
-Sadly, dont know :(
+- PyQt6 (Optionally)
