@@ -2,7 +2,7 @@
 
 Simple PyQt6 GUI (and CLI) tool that transforms any photo into SS14 rich text image (text that looks like an image).
 
-Should probably work on Windows, but idk. Dont use it. ( try https://distrochooser.de )
+Should probably work on Windows, but idk. I dont use Windows. ( try https://distrochooser.de )
 
 ## How to use?
 
