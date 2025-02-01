@@ -180,6 +180,8 @@ if __name__ == "__main__":
     if len(argv) > 1:
         path = argv[1]
     if cli:
+        if path == "":
+            path = input('Path to image: ')
         text = transform()
         print(f"{path}: {image_size['w']}x{image_size['h']} {len(text)}/{symbol_limit}\n\n{text}")
         input() # For Windows compatibility probably
