@@ -7,6 +7,7 @@ from PIL import Image
 cli = False
 
 try:
+    # Try importing PyQt6 for GUI.
     from PyQt6.QtWidgets import QApplication, QMainWindow, QWidget, QPushButton, QVBoxLayout, QHBoxLayout, QTextEdit, QLabel, QCheckBox, QFileDialog
     from PyQt6.QtCore import Qt
 except:
@@ -17,6 +18,7 @@ except:
     print("Forced CLI Mode: Cant load PyQt6.")
     cli = True
 
+# Standard SS14 paper symbol limit is 6000
 symbol_limit = 6050
 use_limit = True
 
@@ -63,7 +65,7 @@ def transform():
     try:
         im = Image.open(path)
     except:
-        return ""
+        return f"Error while loading {path}."
 
     pixels = list(im.getdata())
     image_size["w"], image_size["h"] = im.size
@@ -73,6 +75,7 @@ def transform():
     for i in pixels:
         cur_pixel = color(i)
 
+        # Add one pixel (two boxes)
         if cur_pixel.a in ['0', '00']:
             line += '  '
         elif cur_pixel.get_color() == pr_pixel:
@@ -81,21 +84,25 @@ def transform():
             line += "[color=#" + cur_pixel.get_color() + "]" + pixel
             pr_pixel = cur_pixel.get_color()
 
-        if ind == image_size["w"]:
-            if len(text + line) > symbol_limit and use_limit:
-                break
-
-            text += line + "\n"
-
-            line = ""
-            ind = 1
-        else:
+        # Compare next pixel pos with img width
+        if ind != image_size["w"]:
             ind += 1
+            continue
+
+        # Break for loop if text bigger then limit (6000 symbols)
+        if len(text + line) > symbol_limit and use_limit:
+            break
+
+        text += line + "\n"
+
+        line = ""
+        ind = 1
 
     return text
 
 
 class Window(QMainWindow):
+    '''Main and only window'''
     def __init__(self):
         super().__init__()
 
@@ -140,9 +147,11 @@ class Window(QMainWindow):
         self.show()
 
     def update_label(self, length):
+        '''Updates info label with image size and text length'''
         self.label_info.setText(f"{image_size['w']}x{image_size['h']} {length}/{symbol_limit}")
 
     def update_textedit(self, text):
+        '''Updates text edit with transformed image.'''
         self.text_edit.setText(text)
 
     def button_reload_clicked(self):
@@ -173,6 +182,7 @@ if __name__ == "__main__":
     if cli:
         text = transform()
         print(f"{path}: {image_size['w']}x{image_size['h']} {len(text)}/{symbol_limit}\n\n{text}")
+        input() # For Windows compatibility probably
         exit()
 
     App = QApplication(argv)
