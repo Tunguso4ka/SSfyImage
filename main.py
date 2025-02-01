@@ -38,6 +38,8 @@ class color:
 
         if len(given) > 3:
             self.a = hex(given[3])[2:]
+        else:
+            self.a = "ff"
 
         if not full_color and len(self.r) > 1:
             self.r = self.r[0]
