@@ -8,7 +8,7 @@ Should probably work on Windows, but idk. I dont use Windows. ( try https://dist
 
 1. Make screenshot, edit and zoom it to be smaller or equal to the 21x26 pixels. (Otherwise it not gonna fit on paper)
 2. Double click on .desktop file or run `python3 main.py`
-2.1. In CLI mode add path to the command. `python3 main.py [path to image]`
+3. In CLI mode you can add path to the command. `python3 main.py [path to image]`
 
 ## Dependencies
 - Electricity
