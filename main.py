@@ -32,22 +32,20 @@ pixel = "██"
 
 class color:
     def __init__(self, given):
-        self.r = hex(given[0])[2:]
-        self.g = hex(given[1])[2:]
-        self.b = hex(given[2])[2:]
+
+        self.r = f'{given[0]:02x}'
+        self.g = f'{given[1]:02x}'
+        self.b = f'{given[2]:02x}'
 
         if len(given) > 3:
-            self.a = hex(given[3])[2:]
+            self.a = f'{given[3]:02x}'
         else:
             self.a = "ff"
 
-        if not full_color and len(self.r) > 1:
+        if not full_color:
             self.r = self.r[0]
-        if not full_color and len(self.g) > 1:
             self.g = self.g[0]
-        if not full_color and len(self.b) > 1:
             self.b = self.b[0]
-        if not full_color and len(self.a) > 1:
             self.a = self.a[0]
 
     def get_color(self):
