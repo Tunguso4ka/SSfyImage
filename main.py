@@ -57,7 +57,7 @@ class color:
 
 def transform():
     '''Opens image and transforms it into ss14 markup text.'''
-    text = "[mono]"
+    text = "[mono][bold]"
     line = ""
 
     pr_pixel = ""
@@ -97,7 +97,7 @@ def transform():
 
         line = ""
         ind = 1
-
+    # Adding a "[/bold]" is unnecessary, as SS14 does that on its own
     return text
 
 
