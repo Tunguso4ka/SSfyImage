@@ -18,8 +18,8 @@ except:
     print("Forced CLI Mode: Cant load PyQt6.")
     cli = True
 
-# Standard SS14 paper symbol limit is 6000
-symbol_limit = 6050
+# Standard SS14 paper symbol limit is 10000 (at least in RMC-14)
+symbol_limit = 10050
 use_limit = True
 
 full_color = False
@@ -57,7 +57,7 @@ class color:
 
 def transform():
     '''Opens image and transforms it into ss14 markup text.'''
-    text = "[mono]"
+    text = ""
     line = ""
 
     pr_pixel = ""
